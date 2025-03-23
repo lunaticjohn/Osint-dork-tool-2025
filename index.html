@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Dorking Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1e2f 0%, #2a2a3d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0e0e0;
+        }
+        .container {
+            background: #252537;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.5s ease;
+        }
+        h1 {
+            font-size: 1.8rem;
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        p.subtitle {
+            font-size: 0.9rem;
+            color: #a0a0c0;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: #33334d;
+            color: #e0e0e0;
+            font-size: 1rem;
+            transition: background 0.3s, transform 0.2s;
+        }
+        select {
+            max-height: 40px;
+            overflow-y: auto;
+        }
+        input:focus, select:focus {
+            background: #3a3a5c;
+            outline: none;
+            transform: scale(1.02);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #00d4ff, #007bff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #1e1e2f;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+        }
+        #result a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem; /* Increased dork text size */
+        }
+        #result a:hover {
+            text-decoration: underline;
+        }
+        #result p {
+            margin: 5px 0;
+        }
+        .error {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        #tip {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #1e1e2f;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+        }
+        .disclaimer {
+            font-size: 0.8rem;
+            color: #a0a0c0;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>OSINT Dorking Tool</h1>
+        <p class="subtitle">Uncover public info with custom Google Dorks</p>
+        
+        <input type="text" id="target" placeholder="e.g., example.com or keyword">
+        <select id="dorkType" onchange="showTip()">
+            <optgroup label="Vulnerabilities">
+                <option value="directoryListing">Directory Listing Vulnerability</option>
+                <option value="exposedConfig">Exposed Configuration Files</option>
+                <option value="exposedDb">Exposed Database Files</option>
+                <option value="exposedLog">Exposed Log Files</option>
+                <option value="backupOldFiles">Backup and Old Files</option>
+                <option value="loginPages">Login Pages</option>
+                <option value="sqlErrors">SQL Errors</option>
+                <option value="apacheStruts">Apache STRUTS RCE</option>
+                <option value="vulnerableServers">Vulnerable Servers</option>
+                <option value="vulnerableWpPlugin">Vulnerable WordPress Plugin</option>
+            </optgroup>
+            <optgroup label="Files and Documents">
+                <option value="publicDocs">Publicly Exposed Documents</option>
+                <option value="phpinfo">phpinfo()</option>
+                <option value="findWp">Find WordPress</option>
+                <option value="findWp2">Find WordPress #2</option>
+                <option value="installSetup">Install/Setup Files</option>
+                <option value="openRedirects">Open Redirects</option>
+                <option value="wpContentJuicy">wp-content Juicy Info</option>
+                <option value="wpJuicyFile1">WordPress Juicy File 1</option>
+                <option value="wpJuicyFile2">WordPress Juicy File 2</option>
+                <option value="wpJuicyFile3">WordPress Juicy File 3</option>
+                <option value="fileUpload">File Upload</option>
+                <option value="joomlaDbSql">Joomla Database/SQL File</option>
+                <option value="mysqlFile">MySQL File</option>
+                <option value="mainYml">main.yml File</option>
+                <option value="dockerComposeYml">Docker-Compose.yml File</option>
+                <option value="directorySql">Directory containing SQL Installs/Databases</option>
+            </optgroup>
+            <optgroup label="Sensitive Information">
+                <option value="htaccessSensitive">.htaccess Sensitive Files</option>
+                <option value="backdoors">Finding Backdoors</option>
+                <option value="sensitiveFile1">Sensitive File #1</option>
+                <option value="sensitiveFile2">Sensitive File #2</option>
+                <option value="sensitiveFile3">Sensitive File #3</option>
+                <option value="sensitiveFile4">Sensitive File #4</option>
+                <option value="sharingApiInfo">Sharing API Info</option>
+                <option value="sensitiveAdminBackup">Sensitive Admin Backup</option>
+                <option value="jwksRsa">jwks-rsa File</option>
+                <option value="wpBackup">WordPress Backup</option>
+            </optgroup>
+            <optgroup label="Domain and Subdomain Discovery">
+                <option value="subdomains">Find Subdomains</option>
+                <option value="subSubdomains">Find Sub-Subdomains</option>
+            </optgroup>
+            <optgroup label="External Searches">
+                <option value="pastebin">Find Pastebin Entries</option>
+                <option value="linkedinEmployees">Employees on LinkedIn</option>
+                <option value="githubSearch">Search in GitHub</option>
+                <option value="threatCrowd">Check in ThreatCrowd</option>
+                <option value="webArchive1">Search in Web Archive #1</option>
+                <option value="webArchive2">Search in Web Archive #2</option>
+                <option value="openBugBounty">Search OpenBugBounty</option>
+                <option value="redditSearch">Search in Reddit</option>
+                <option value="censysIpv4">Search in Censys (IPv4)</option>
+                <option value="censysDomain">Search in Censys (Domain)</option>
+                <option value="censysCerts">Search in Censys (Certificates)</option>
+                <option value="shodanSearch">Search in Shodan</option>
+                <option value="arcgisRest">ArcGIS REST Services Directory</option>
+                <option value="githubApi">GitHub API</option>
+            </optgroup>
+            <optgroup label="Specific Technologies">
+                <option value="findSwf">Find SWF</option>
+                <option value="findMimeSwf">Find MIME-SWF</option>
+                <option value="swfLinksPast">Find SWF Links in the Past</option>
+                <option value="mimeSwfLinksPast">Find MIME-SWF Links in the Past</option>
+                <option value="wpConfigBackup">Search WP Config Backup</option>
+                <option value="adminPortal">Admin Portal</option>
+                <option value="remoteProcedure">Remote Procedure Call Protocol</option>
+                <option value="testCrossDomain">Test CrossDomain</option>
+                <option value="certificateTransparency">Certificate Transparency</option>
+            </optgroup>
+        </select>
+        <div id="tip"></div>
+        <button onclick="generateDork()">Generate Dork</button>
+        
+        <div id="result"></div>
+        <p class="disclaimer">For ethical use only. Respect privacy laws like GDPR and website ToS.</p>
+    </div>
+
+    <script>
+        // Tooltips for each dork type
+        const tips = {
+            directoryListing: "Finds open directories that might expose sensitive files.",
+            exposedConfig: "Looks for configuration files that could reveal server settings.",
+            exposedDb: "Searches for exposed database files like SQL dumps.",
+            exposedLog: "Finds log files that might contain sensitive information.",
+            backupOldFiles: "Looks for backup or old files that might be accessible.",
+            loginPages: "Identifies login pages that might be unsecured.",
+            sqlErrors: "Finds pages with SQL errors, indicating potential vulnerabilities.",
+            apacheStruts: "Searches for Apache Struts vulnerabilities (RCE).",
+            vulnerableServers: "Looks for server status/info pages that might be exposed.",
+            vulnerableWpPlugin: "Finds potentially vulnerable WordPress plugins.",
+            publicDocs: "Searches for publicly exposed documents (PDF, DOC, XLS).",
+            phpinfo: "Finds phpinfo() pages that reveal server details.",
+            findWp: "Identifies WordPress sites via wp-content or wp-includes.",
+            findWp2: "Finds WordPress sites using 'powered by' signatures.",
+            installSetup: "Looks for installation or setup pages left online.",
+            openRedirects: "Finds potential open redirect vulnerabilities.",
+            wpContentJuicy: "Searches for juicy info in wp-content/uploads.",
+            wpJuicyFile1: "Looks for exposed wp-config.php files.",
+            wpJuicyFile2: "Finds wp-admin pages that might be accessible.",
+            wpJuicyFile3: "Searches for wp-json endpoints with sensitive data.",
+            fileUpload: "Identifies file upload pages that might be vulnerable.",
+            joomlaDbSql: "Finds Joomla database or SQL files.",
+            mysqlFile: "Searches for MySQL-related files.",
+            mainYml: "Looks for main.yml files that might contain configs.",
+            dockerComposeYml: "Finds Docker Compose YAML files.",
+            directorySql: "Searches for directories with SQL installs or databases.",
+            htaccessSensitive: "Finds .htaccess files that might be exposed.",
+            backdoors: "Looks for potential backdoors or shells.",
+            sensitiveFile1: "Searches for sensitive .ini configuration files.",
+            sensitiveFile2: "Finds .env files that might contain secrets.",
+            sensitiveFile3: "Looks for files with 'credentials' or 'password' in the URL.",
+            sensitiveFile4: "Searches for files marked as 'private' or 'secret'.",
+            sharingApiInfo: "Finds API keys or endpoints that might be exposed.",
+            sensitiveAdminBackup: "Looks for admin backups that might be accessible.",
+            jwksRsa: "Searches for jwks-rsa files used in authentication.",
+            wpBackup: "Finds WordPress backup files.",
+            subdomains: "Discovers subdomains of the target site.",
+            subSubdomains: "Finds sub-subdomains for deeper reconnaissance.",
+            pastebin: "Searches Pastebin for mentions of the target.",
+            linkedinEmployees: "Finds employees of the target on LinkedIn.",
+            githubSearch: "Searches GitHub for the target (e.g., leaked code).",
+            threatCrowd: "Checks ThreatCrowd for threat intelligence on the target.",
+            webArchive1: "Searches archive.org for historical data on the target.",
+            webArchive2: "Searches web.archive.org for archived pages.",
+            openBugBounty: "Looks for bug bounty reports on OpenBugBounty.",
+            redditSearch: "Searches Reddit for mentions of the target.",
+            censysIpv4: "Searches Censys for IPv4 data related to the target.",
+            censysDomain: "Searches Censys for domain data.",
+            censysCerts: "Looks for certificates in Censys.",
+            shodanSearch: "Searches Shodan for the target (e.g., open ports).",
+            arcgisRest: "Finds ArcGIS REST services directories.",
+            githubApi: "Searches GitHub API for the target.",
+            findSwf: "Looks for SWF (Flash) files.",
+            findMimeSwf: "Searches for MIME-SWF files.",
+            swfLinksPast: "Finds historical SWF links.",
+            mimeSwfLinksPast: "Searches for historical MIME-SWF links.",
+            wpConfigBackup: "Looks for WordPress config backups.",
+            adminPortal: "Finds admin portals or dashboards.",
+            remoteProcedure: "Searches for RPC (Remote Procedure Call) endpoints.",
+            testCrossDomain: "Looks for crossdomain.xml files.",
+            certificateTransparency: "Searches for certificate transparency logs."
+        };
+
+        // Show tip when dork type is selected
+        function showTip() {
+            const dorkType = document.getElementById("dorkType").value;
+            const tipDiv = document.getElementById("tip");
+            tipDiv.innerHTML = `<p>Tip: ${tips[dorkType] || "Select a dork type to see a tip."}</p>`;
+        }
+
+        // Initialize tip on page load
+        window.onload = showTip;
+
+        function generateDork() {
+            console.log("Generating dork...");
+            const target = document.getElementById("target").value.trim();
+            const dorkType = document.getElementById("dorkType").value;
+            const resultDiv = document.getElementById("result");
+
+            if (!target) {
+                resultDiv.innerHTML = "<p class='error'>Please enter a target!</p>";
+                console.log("Error: No target provided");
+                return;
+            }
+
+            const googleBase = "https://www.google.com/search?q=";
+            let dorkQuery = "";
+
+            // Generate the dork query
+            switch (dorkType) {
+                // Vulnerabilities
+                case "directoryListing":
+                    dorkQuery = `intitle:"index of" site:${target}`;
+                    break;
+                case "exposedConfig":
+                    dorkQuery = `site:${target} filetype:conf -inurl:(signup | login)`;
+                    break;
+                case "exposedDb":
+                    dorkQuery = `site:${target} filetype:sql | filetype:db -inurl:(signup | login)`;
+                    break;
+                case "exposedLog":
+                    dorkQuery = `site:${target} filetype:log -inurl:(signup | login)`;
+                    break;
+                case "backupOldFiles":
+                    dorkQuery = `site:${target} filetype:bak | filetype:old -inurl:(signup | login)`;
+                    break;
+                case "loginPages":
+                    dorkQuery = `site:${target} inurl:(login | signin | admin)`;
+                    break;
+                case "sqlErrors":
+                    dorkQuery = `site:${target} intext:"sql syntax error"`;
+                    break;
+                case "apacheStruts":
+                    dorkQuery = `site:${target} inurl:(struts | action)`;
+                    break;
+                case "vulnerableServers":
+                    dorkQuery = `site:${target} inurl:(server-status | server-info)`;
+                    break;
+                case "vulnerableWpPlugin":
+                    dorkQuery = `site:${target} inurl:(wp-content/plugins) "vulnerable"`;
+                    break;
+
+                // Files and Documents
+                case "publicDocs":
+                    dorkQuery = `site:${target} filetype:pdf | filetype:doc | filetype:xls -inurl:(signup | login)`;
+                    break;
+                case "phpinfo":
+                    dorkQuery = `site:${target} inurl:phpinfo`;
+                    break;
+                case "findWp":
+                    dorkQuery = `site:${target} inurl:(wp-content | wp-includes)`;
+                    break;
+                case "findWp2":
+                    dorkQuery = `site:${target} "powered by wordpress"`;
+                    break;
+                case "installSetup":
+                    dorkQuery = `site:${target} inurl:(install | setup)`;
+                    break;
+                case "openRedirects":
+                    dorkQuery = `site:${target} inurl:(redirect | url=)`;
+                    break;
+                case "wpContentJuicy":
+                    dorkQuery = `site:${target} inurl:(wp-content/uploads)`;
+                    break;
+                case "wpJuicyFile1":
+                    dorkQuery = `site:${target} inurl:(wp-config.php)`;
+                    break;
+                case "wpJuicyFile2":
+                    dorkQuery = `site:${target} inurl:(wp-admin)`;
+                    break;
+                case "wpJuicyFile3":
+                    dorkQuery = `site:${target} inurl:(wp-json)`;
+                    break;
+                case "fileUpload":
+                    dorkQuery = `site:${target} inurl:(upload | fileupload)`;
+                    break;
+                case "joomlaDbSql":
+                    dorkQuery = `site:${target} inurl:(joomla) filetype:sql`;
+                    break;
+                case "mysqlFile":
+                    dorkQuery = `site:${target} inurl:(mysql) filetype:sql`;
+                    break;
+                case "mainYml":
+                    dorkQuery = `site:${target} inurl:(main.yml)`;
+                    break;
+                case "dockerComposeYml":
+                    dorkQuery = `site:${target} inurl:(docker-compose.yml)`;
+                    break;
+                case "directorySql":
+                    dorkQuery = `site:${target} inurl:(sql | database) filetype:sql`;
+                    break;
+
+                // Sensitive Information
+                case "htaccessSensitive":
+                    dorkQuery = `site:${target} inurl:.htaccess`;
+                    break;
+                case "backdoors":
+                    dorkQuery = `site:${target} inurl:(shell | backdoor)`;
+                    break;
+                case "sensitiveFile1":
+                    dorkQuery = `site:${target} inurl:(config | conf) filetype:ini`;
+                    break;
+                case "sensitiveFile2":
+                    dorkQuery = `site:${target} inurl:(env | .env)`;
+                    break;
+                case "sensitiveFile3":
+                    dorkQuery = `site:${target} inurl:(credentials | password)`;
+                    break;
+                case "sensitiveFile4":
+                    dorkQuery = `site:${target} inurl:(private | secret)`;
+                    break;
+                case "sharingApiInfo":
+                    dorkQuery = `site:${target} inurl:(api | key)`;
+                    break;
+                case "sensitiveAdminBackup":
+                    dorkQuery = `site:${target} inurl:(admin backup)`;
+                    break;
+                case "jwksRsa":
+                    dorkQuery = `site:${target} inurl:(jwks-rsa)`;
+                    break;
+                case "wpBackup":
+                    dorkQuery = `site:${target} inurl:(wp-backup)`;
+                    break;
+
+                // Domain and Subdomain Discovery
+                case "subdomains":
+                    dorkQuery = `site:*.${target} -inurl:(www.${target})`;
+                    break;
+                case "subSubdomains":
+                    dorkQuery = `site:*.*.${target} -inurl:(www.${target})`;
+                    break;
+
+                // External Searches
+                case "pastebin":
+                    dorkQuery = `site:pastebin.com ${target}`;
+                    break;
+                case "linkedinEmployees":
+                    dorkQuery = `site:linkedin.com ${target} "employee"`;
+                    break;
+                case "githubSearch":
+                    dorkQuery = `site:github.com ${target}`;
+                    break;
+                case "threatCrowd":
+                    dorkQuery = `site:threatcrowd.org ${target}`;
+                    break;
+                case "webArchive1":
+                    dorkQuery = `site:archive.org ${target}`;
+                    break;
+                case "webArchive2":
+                    dorkQuery = `site:web.archive.org ${target}`;
+                    break;
+                case "openBugBounty":
+                    dorkQuery = `site:openbugbounty.org ${target}`;
+                    break;
+                case "redditSearch":
+                    dorkQuery = `site:reddit.com ${target}`;
+                    break;
+                case "censysIpv4":
+                    dorkQuery = `site:censys.io ${target} "ipv4"`;
+                    break;
+                case "censysDomain":
+                    dorkQuery = `site:censys.io ${target} "domain"`;
+                    break;
+                case "censysCerts":
+                    dorkQuery = `site:censys.io ${target} "certificates"`;
+                    break;
+                case "shodanSearch":
+                    dorkQuery = `site:shodan.io ${target}`;
+                    break;
+                case "arcgisRest":
+                    dorkQuery = `site:${target} inurl:(arcgis/rest/services)`;
+                    break;
+                case "githubApi":
+                    dorkQuery = `site:api.github.com ${target}`;
+                    break;
+
+                // Specific Technologies
+                case "findSwf":
+                    dorkQuery = `site:${target} filetype:swf`;
+                    break;
+                case "findMimeSwf":
+                    dorkQuery = `site:${target} filetype:swf "mime"`;
+                    break;
+                case "swfLinksPast":
+                    dorkQuery = `site:${target} filetype:swf -inurl:(current)`;
+                    break;
+                case "mimeSwfLinksPast":
+                    dorkQuery = `site:${target} filetype:swf "mime" -inurl:(current)`;
+                    break;
+                case "wpConfigBackup":
+                    dorkQuery = `site:${target} inurl:(wp-config-backup)`;
+                    break;
+                case "adminPortal":
+                    dorkQuery = `site:${target} inurl:(admin | portal)`;
+                    break;
+                case "remoteProcedure":
+                    dorkQuery = `site:${target} inurl:(rpc)`;
+                    break;
+                case "testCrossDomain":
+                    dorkQuery = `site:${target} inurl:(crossdomain.xml)`;
+                    break;
+                case "certificateTransparency":
+                    dorkQuery = `site:${target} inurl:(cert-transparency)`;
+                    break;
+                default:
+                    dorkQuery = `site:${target}`;
+                    console.log("Warning: Unknown dork type:", dorkType);
+            }
+
+            // Generate the search URL and display result
+            const searchUrl = googleBase + encodeURIComponent(dorkQuery);
+            resultDiv.innerHTML = `
+                <p>Your Dork:</p>
+                <a href="${searchUrl}" target="_blank">${dorkQuery}</a>
+                <p>Click to search Google</p>
+            `;
+
+            console.log("Dork generated successfully:", dorkQuery);
+        }
+    </script>
+</body>
+</html>
