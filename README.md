@@ -10,11 +10,10 @@ A simple, modern web-based tool to generate Google Dorks for Open-Source Intelli
 - **Ethical Use Disclaimer**: Includes a reminder to use the tool responsibly and respect privacy laws (e.g., GDPR, CCPA) and website terms of service.
 
 ## Demo
-Try the live version of the tool here: [OSINT Dorking Tool Live Demo](#) *(Replace with your deployed link after hosting, e.g., on GitHub Pages or Netlify)*
+Try the live version of the tool here: [OSINT Dorking Tool Live Demo](https://lunaticjohn.github.io/Osint-dork-tool-2025/)
 
 ## Screenshots
-*(You can add a screenshot of the tool here after deploying it. For now, I'll include a placeholder.)*  
-![OSINT Dorking Tool Screenshot](screenshot.png)
+  ![OSINT Dorking Tool Screenshot](screenshot.png)
 
 ## Usage
 1. **Enter a Target**: Input a domain or keyword (e.g., `nasa.gov` or `tesla.com`) in the text field.
@@ -33,7 +32,7 @@ Try the live version of the tool here: [OSINT Dorking Tool Live Demo](#) *(Repla
 You can either use the tool directly via a live demo (if hosted) or run it locally by following these steps:
 
 ### Option 1: Use the Live Demo
-- Visit the live demo link: [OSINT Dorking Tool Live Demo](#) *(Replace with your deployed link)*
+- Visit the live demo link: [OSINT Dorking Tool Live Demo](https://lunaticjohn.github.io/Osint-dork-tool-2025/) 
 
 ### Option 2: Run Locally
 1. **Clone the Repository**:
